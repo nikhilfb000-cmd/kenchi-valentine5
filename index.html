@@ -14,8 +14,8 @@
     }
 
     h1 {
-      margin-top: 70px;
-      font-size: 30px;
+      margin-top: 60px;
+      font-size: 28px;
     }
 
     #yesBtn {
@@ -29,11 +29,11 @@
       cursor: pointer;
       transition: 0.3s;
       position: relative;
-      z-index: 2;
+      z-index: 1;
     }
 
     #noBtn {
-      position: absolute;
+      position: fixed;
       font-size: 20px;
       padding: 12px 25px;
       background-color: grey;
@@ -41,14 +41,16 @@
       border: none;
       border-radius: 30px;
       cursor: pointer;
+      z-index: 9999; /* always above */
     }
 
     #message {
-      font-size: 22px;
+      font-size: 20px;
       color: #cc0066;
       margin-top: 20px;
       font-weight: bold;
       min-height: 40px;
+      padding: 10px;
     }
 
     .heart {
@@ -62,21 +64,6 @@
     @keyframes floatUp {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(-800px); opacity: 0; }
-    }
-
-    .confetti {
-      position: fixed;
-      width: 10px;
-      height: 10px;
-      top: -10px;
-      animation: fall 3s linear forwards;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(100vh) rotate(720deg);
-        opacity: 0;
-      }
     }
   </style>
 </head>
@@ -113,7 +100,7 @@ const messages = [
 
 function startMusic() {
   if (!musicStarted) {
-    music.play();
+    music.play().catch(() => {});
     musicStarted = true;
   }
 }
@@ -141,10 +128,20 @@ noBtn.addEventListener("click", function() {
     return;
   }
 
-  yesBtn.style.fontSize = (22 + noCount * 8) + "px";
+  yesBtn.style.fontSize = (22 + noCount * 6) + "px";
 
-  const x = Math.random() * (window.innerWidth - 150);
-  const y = Math.random() * (window.innerHeight - 150);
+  // Safe movement area (avoid center)
+  let x = Math.random() * (window.innerWidth - 120);
+  let y = Math.random() * (window.innerHeight - 120);
+
+  // Avoid center area where Yes is
+  if (x > window.innerWidth / 3 && x < window.innerWidth / 1.5) {
+    x = 10;
+  }
+
+  if (y > window.innerHeight / 3 && y < window.innerHeight / 1.5) {
+    y = window.innerHeight - 100;
+  }
 
   noBtn.style.left = x + "px";
   noBtn.style.top = y + "px";
@@ -156,7 +153,7 @@ yesBtn.addEventListener("click", function() {
 
   document.body.innerHTML = `
     <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#ffccd5;flex-direction:column;">
-      <h1 style="font-size:42px;color:#ff0066;">
+      <h1 style="font-size:40px;color:#ff0066;">
         I love you too kenchi ❤️
       </h1>
       <div style="font-size:60px;">💍💕😍</div>
@@ -164,7 +161,6 @@ yesBtn.addEventListener("click", function() {
   `;
 
   setInterval(createHeart, 300);
-  setInterval(createConfetti, 200);
 });
 
 function createHeart() {
@@ -176,17 +172,6 @@ function createHeart() {
   document.body.appendChild(heart);
 
   setTimeout(() => heart.remove(), 5000);
-}
-
-function createConfetti() {
-  const confetti = document.createElement("div");
-  confetti.className = "confetti";
-  confetti.style.left = Math.random() * window.innerWidth + "px";
-  confetti.style.backgroundColor =
-    "hsl(" + Math.random() * 360 + ", 100%, 50%)";
-  document.body.appendChild(confetti);
-
-  setTimeout(() => confetti.remove(), 3000);
 }
 
 </script>
